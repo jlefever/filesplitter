@@ -47,6 +47,6 @@ Next, update the virtual environment with the new or removed packages:
 python -m piptools sync
 ```
 
-## Example Data
+## Sample Data
 
-The supplied Jupyter notebooks assume there are some SQLite databases in a `data/` directory at the root of this repository. You can download the example databases from [here](https://github.com/jlefever/ase2023-replication/releases/download/snapshot-1/snapshot-1-dbs.zip). These databases were created with [cochange-tool](https://github.com/jlefever/cochange-tool) and [depends](https://github.com/multilang-depends/depends). This tool takes SQLite databases like these as input.
+The supplied Jupyter notebooks assume there are some SQLite databases in a `data/` directory at the root of this repository. You can download the sample databases from [here](https://github.com/jlefever/ase2023-replication/releases/download/snapshot-1/snapshot-1-dbs.zip). These databases were created with [cochange-tool](https://github.com/jlefever/cochange-tool) and [depends](https://github.com/multilang-depends/depends). This tool takes SQLite databases like these as input.
