@@ -4,7 +4,7 @@ This is an experimental tool that breaks apart god files.
 
 ## Usage
 
-Currently, we do not provide a distributable package (i.e. something that could be installed with pip.) Instead, work is done by cloning the repository, setting up a virtual environment, and then using Jupyter notebooks or the provided minimal CLI.
+Currently, we do not provide a distributable package (i.e. something that could be installed with pip.) Instead, work is done by cloning the repository, setting up a virtual environment, and then using Jupyter notebooks or the provided CLI.
 ```
 # Clone this repository
 git clone https://github.com/jlefever/filesplitter
@@ -37,21 +37,12 @@ You can also open the root of the project in VSCode and interact with Jupyter no
 
 Project dependencies are recoreded in the `requirements.in` file. We use [pip-tools](https://github.com/jazzband/pip-tools) to keep the virtual environment in-sync with this file.
 
-If you need to add, remove, or modify a dependency, first edit the `requirements.in` file. Then install pip-tools into your virtual environment if not already installed.
-```
-# Activate the ".venv" virtual environment
-source .venv/bin/activate
-
-# Install pip-tools
-python -m pip install pip-tools
-```
-
-Next, re-generate the `requirements.txt` file.
+If you need to modify this project's dependencies, first edit the `requirements.in` file. Then, regenerate the `requirements.txt` file:
 ```
 python -m piptools compile --resolver=backtracking
 ```
 
-Finally, update the virtual environment with the new or removed packages.
+Next, update the virtual environment with the new or removed packages:
 ```
 python -m piptools sync
 ```
