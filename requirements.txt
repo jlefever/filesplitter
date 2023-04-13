@@ -4,6 +4,8 @@
 #
 #    pip-compile --resolver=backtracking
 #
+absl-py==1.4.0
+    # via ortools
 aiofiles==22.1.0
     # via ypy-websocket
 aiosqlite==0.18.0
@@ -188,7 +190,11 @@ notebook-shim==0.2.2
 numpy==1.24.2
     # via
     #   -r requirements.in
+    #   ortools
     #   pandas
+    #   scipy
+ortools==9.6.2534
+    # via -r requirements.in
 packaging==23.1
     # via
     #   black
@@ -223,6 +229,8 @@ prometheus-client==0.16.0
     #   notebook
 prompt-toolkit==3.0.38
     # via ipython
+protobuf==4.22.3
+    # via ortools
 psutil==5.9.4
     # via ipykernel
 ptyprocess==0.7.0
@@ -269,6 +277,8 @@ rfc3986-validator==0.1.1
     # via
     #   jsonschema
     #   jupyter-events
+scipy==1.10.1
+    # via ortools
 send2trash==1.8.0
     # via
     #   jupyter-server
