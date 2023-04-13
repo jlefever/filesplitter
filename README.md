@@ -4,7 +4,7 @@ This is an experimental tool that breaks apart god files.
 
 ## Usage
 
-Currently, we do not provide a distributable package (i.e. something that could be installed with pip.) Instead, work is done by cloning the repository and using the provided minimal CLI or through a Jupyter notebook. 
+Currently, we do not provide a distributable package (i.e. something that could be installed with pip.) Instead, work is done by cloning the repository, setting up a virtual environment, and then using Jupyter notebooks or the provided minimal CLI.
 ```
 # Clone this repository
 git clone https://github.com/jlefever/filesplitter
@@ -31,11 +31,13 @@ For Jupyter:
 python -m jupyterlab
 ```
 
+You can also open the root of the project in VSCode and interact with Jupyter notebooks that way (just make sure you select the `.venv` kernel.)
+
 ## Development
 
-Project metadata and dependencies are kept in the `pyproject.toml` file (see [here](https://snarky.ca/what-the-heck-is-pyproject-toml/) if unfamiliar.) We use [pip-tools](https://github.com/jazzband/pip-tools) to make it easier to keep the virtual environment in-sync with this file.
+Project dependencies are recoreded in the `requirements.in` file. We use [pip-tools](https://github.com/jazzband/pip-tools) to keep the virtual environment in-sync with this file.
 
-To add a new dependency, first edit the `dependencies` key of the `pyproject.toml` file. Then install pip-tools into your virtual environment if not already installed.
+If you need to add, remove, or modify a dependency, first edit the `requirements.in` file. Then install pip-tools into your virtual environment if not already installed.
 ```
 # Activate the ".venv" virtual environment
 source .venv/bin/activate
@@ -46,10 +48,14 @@ python -m pip install pip-tools
 
 Next, re-generate the `requirements.txt` file.
 ```
-python -m piptools compile
+python -m piptools compile --resolver=backtracking
 ```
 
 Finally, update the virtual environment with the new or removed packages.
 ```
 python -m piptools sync
 ```
+
+## Example Data
+
+The supplied Jupyter notebooks assume there are some SQLite databases in a `data/` directory at the root of this repository. You can download the example databases from [here](https://github.com/jlefever/ase2023-replication/releases/download/snapshot-1/snapshot-1-dbs.zip). These databases were created with [cochange-tool](https://github.com/jlefever/cochange-tool) and [depends](https://github.com/multilang-depends/depends). This tool takes SQLite databases like these as input.
