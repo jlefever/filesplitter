@@ -13,6 +13,7 @@ class Dataset:
     clients_df: pd.DataFrame
     client_deps_df: pd.DataFrame
     outgoing_type_names: list[str]
+    touches_df: pd.DataFrame
 
     def entities_df(self) -> pd.DataFrame:
         return pd.concat([self.targets_df, self.clients_df])
@@ -41,6 +42,12 @@ def load_dataset(db_path: str, filename: str) -> Dataset:
         clients_df = db.fetch_clients(con, filename)
         client_deps_df = db.fetch_client_deps(con, top_id, filename)
         outgoing_type_names = db.fetch_outgoing_type_names(con, top_id)
+        touches_df = db.fetch_touches(con, lead_ref_name, top_id)
         return Dataset(
-            targets_df, target_deps_df, clients_df, client_deps_df, outgoing_type_names
+            targets_df,
+            target_deps_df,
+            clients_df,
+            client_deps_df,
+            outgoing_type_names,
+            touches_df,
         )

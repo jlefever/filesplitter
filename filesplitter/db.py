@@ -47,8 +47,8 @@ def fetch_entities_by_name(con: Con, name: str) -> pd.DataFrame:
     return pd.read_sql(_get_query_by_caller_name(), con, params=params)
 
 
-def fetch_internal_deps(con: Con, target_id: str) -> pd.DataFrame:
-    params = {"target_id": target_id}
+def fetch_internal_deps(con: Con, target_id: int) -> pd.DataFrame:
+    params = {"target_id": str(target_id)}
     return pd.read_sql(_get_query_by_caller_name(), con, params=params)
 
 
@@ -59,6 +59,11 @@ def fetch_outgoing_type_names(con: Con, target_id: int) -> list[str]:
 
 def fetch_refs(con: Con) -> pd.DataFrame:
     return pd.read_sql(_get_query_by_caller_name(), con)
+
+
+def fetch_touches(con: Con, ref_name: str, target_id: str) -> pd.DataFrame:
+    params = {"ref_name": ref_name, "target_id": str(target_id)}
+    return pd.read_sql(_get_query_by_caller_name(), con, params=params)
 
 
 def fetch_lead_ref_name(con: Con) -> str:
