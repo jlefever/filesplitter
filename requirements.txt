@@ -193,6 +193,8 @@ numpy==1.24.2
     #   ortools
     #   pandas
     #   scipy
+ordered-set==4.1.0
+    # via -r requirements.in
 ortools==9.6.2534
     # via -r requirements.in
 packaging==23.1
@@ -278,7 +280,9 @@ rfc3986-validator==0.1.1
     #   jsonschema
     #   jupyter-events
 scipy==1.10.1
-    # via ortools
+    # via
+    #   -r requirements.in
+    #   ortools
 send2trash==1.8.0
     # via
     #   jupyter-server

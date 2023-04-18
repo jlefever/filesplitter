@@ -1,6 +1,5 @@
 import sqlite3
 from dataclasses import dataclass
-from functools import cache
 
 import pandas as pd
 
@@ -15,11 +14,9 @@ class Dataset:
     client_deps_df: pd.DataFrame
     outgoing_type_names: list[str]
 
-    @cache
     def entities_df(self) -> pd.DataFrame:
         return pd.concat([self.targets_df, self.clients_df])
 
-    @cache
     def deps_df(self) -> pd.DataFrame:
         return pd.concat([self.target_deps_df, self.client_deps_df])
 
