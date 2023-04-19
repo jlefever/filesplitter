@@ -74,6 +74,7 @@ JOIN refs ON refs.commit_id = locs.commit_id
 JOIN commits ON commits.id = locs.commit_id
 WHERE refs.name = :ref_name
 AND locs.loc >= :min_locs
+AND user_counts.author_count >= :min_authors
 AND locs.filename NOT LIKE '%/test/%'
 AND locs.filename NOT LIKE '%/tests/%'
 AND locs.filename NOT LIKE '%test/%'

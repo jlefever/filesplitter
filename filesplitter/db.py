@@ -22,8 +22,8 @@ def create_temp_tables(con: Con):
     con.executescript(_get_query("_prelude"))
 
 
-def fetch_candidate_files(con: Con, ref_name: str, min_locs: int) -> pd.DataFrame:
-    params = {"ref_name": ref_name, "min_locs": min_locs}
+def fetch_candidate_files(con: Con, ref_name: str, min_locs: int, min_authors: int) -> pd.DataFrame:
+    params = {"ref_name": ref_name, "min_locs": min_locs, "min_authors": min_authors}
     return pd.read_sql(_get_query_by_caller_name(), con, params=params)
 
 
