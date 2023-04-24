@@ -37,7 +37,7 @@ You can also open the root of the project in VSCode and interact with Jupyter no
 
 Project dependencies are recoreded in the `requirements.in` file. We use [pip-tools](https://github.com/jazzband/pip-tools) to keep the virtual environment in-sync with this file.
 
-If you need to modify this project's dependencies, first edit the `requirements.in` file. Then, regenerate the `requirements.txt` file:
+If you need to modify this project's dependencies, first edit the `requirements.in` file. Then use pip-tools to regenerate the `requirements.txt` file:
 ```
 python -m piptools compile --resolver=backtracking
 ```
