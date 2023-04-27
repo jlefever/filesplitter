@@ -50,6 +50,7 @@ charset-normalizer==3.1.0
 click==8.1.3
     # via
     #   black
+    #   nltk
     #   pip-tools
 comm==0.1.3
     # via ipykernel
@@ -94,6 +95,10 @@ jinja2==3.1.2
     #   nbclassic
     #   nbconvert
     #   notebook
+joblib==1.2.0
+    # via
+    #   nltk
+    #   scikit-learn
 json5==0.9.11
     # via jupyterlab-server
 jsonpointer==2.3
@@ -183,6 +188,8 @@ nest-asyncio==1.5.6
     #   ipykernel
     #   nbclassic
     #   notebook
+nltk==3.8.1
+    # via -r requirements.in
 notebook==6.5.4
     # via jupyterlab
 notebook-shim==0.2.2
@@ -192,6 +199,7 @@ numpy==1.24.2
     #   -r requirements.in
     #   ortools
     #   pandas
+    #   scikit-learn
     #   scipy
 ordered-set==4.1.0
     # via -r requirements.in
@@ -269,6 +277,8 @@ pyzmq==25.0.2
     #   jupyter-server
     #   nbclassic
     #   notebook
+regex==2023.3.23
+    # via nltk
 requests==2.28.2
     # via jupyterlab-server
 rfc3339-validator==0.1.4
@@ -279,10 +289,13 @@ rfc3986-validator==0.1.1
     # via
     #   jsonschema
     #   jupyter-events
+scikit-learn==1.2.2
+    # via -r requirements.in
 scipy==1.10.1
     # via
     #   -r requirements.in
     #   ortools
+    #   scikit-learn
 send2trash==1.8.0
     # via
     #   jupyter-server
@@ -306,6 +319,8 @@ terminado==0.17.1
     #   jupyter-server-terminals
     #   nbclassic
     #   notebook
+threadpoolctl==3.1.0
+    # via scikit-learn
 tinycss2==1.2.1
     # via nbconvert
 tornado==6.2
@@ -317,6 +332,8 @@ tornado==6.2
     #   nbclassic
     #   notebook
     #   terminado
+tqdm==4.65.0
+    # via nltk
 traitlets==5.9.0
     # via
     #   comm

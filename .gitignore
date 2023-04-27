@@ -4,4 +4,4 @@
 .venv
 data
 .vscode
-results
+results*

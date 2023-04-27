@@ -4,6 +4,8 @@ pandas==2.0.0
 scipy==1.10.1
 ortools==9.6.2534
 ordered-set==4.1.0
+nltk==3.8.1
+scikit-learn==1.2.2
 
 # Development dependencies
 pip-tools==6.13.0

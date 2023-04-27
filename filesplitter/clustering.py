@@ -1,15 +1,44 @@
 import time
 
 import pandas as pd
+import scipy as sp
+from sklearn.cluster import DBSCAN
 from ordered_set import OrderedSet as oset
 
 from filesplitter import ilp
 from filesplitter.graph import group_by_scc, group_by_wcc, group_edges_by
 from filesplitter.loading import Dataset
+from filesplitter.naming import NameSimilarity
+
+USE_INIT_TEXT_CLUSTERING = True
+TEXT_EPS = 0.30
+TEXT_MIN_PTS = 3
+ALLOW_DUP_NAMES = True
 
 USE_ALL = True
-EPS = 1/2
+CUT_EPS = 1/2
 MAX_WEIGHT = 16
+
+
+# Big mess but it works
+def to_name_cluster_labels(entities_df: pd.DataFrame, sim: NameSimilarity, labels: list[int]):
+    label_dict = {}
+    curr = max(*labels) + 1
+    for _, row in entities_df.iterrows():
+        if row["name"] in label_dict:
+            continue
+        if row["kind"] != "file":
+            label = labels[sim.get_doc_ix(row["name"])]
+            if label >= 0:
+                label_dict[row["name"]] = label
+                continue
+        label_dict[row["name"]] = curr
+        curr += 1
+    res = []
+    for _, row in entities_df.iterrows():
+        res.append(label_dict[row["name"]])
+    return res
+
 
 # This function was extracted from a Jupyter notebook.
 def cluster_dataset(ds: Dataset) -> pd.DataFrame:
@@ -17,8 +46,20 @@ def cluster_dataset(ds: Dataset) -> pd.DataFrame:
     entities_df = ds.entities_df()
     edges = oset((r["src_id"], r["tgt_id"]) for _, r in ds.deps_df().iterrows())
 
-    # Create a "name_id" for each entity that groups targets according to their name
-    entities_df["name_id"] = entities_df.groupby("name").ngroup()
+    if USE_INIT_TEXT_CLUSTERING:
+        # Cluster by name
+        similarity = NameSimilarity(list(ds.targets_df["name"]), allow_dup_names=ALLOW_DUP_NAMES)
+        dbscan = DBSCAN(eps=TEXT_EPS, min_samples=TEXT_MIN_PTS, metric="precomputed")
+        labels = dbscan.fit(similarity.dist_mat)
+        entities_df["name_id"] = to_name_cluster_labels(entities_df, similarity, labels)
+        
+        # Print cluster info
+        n_clusters = max(*labels) + 1
+        max_cluster_len = sp.stats.mode([l for l in labels if l >= 0], keepdims=False).count
+        print("Found {} text clusters with a max size of {}.".format(n_clusters, max_cluster_len))
+    else:
+        # Create a "name_id" for each entity that groups targets according to their name
+        entities_df["name_id"] = entities_df.groupby("name").ngroup()
 
     # Create a "strong_id" for each entity that groups targets according the strongly connected componant of their name
     name_edges = group_edges_by(edges, entities_df["name_id"])
@@ -66,7 +107,7 @@ def cluster_dataset(ds: Dataset) -> pd.DataFrame:
             active_edges = edges
 
         start = time.perf_counter()
-        cut_weight, labels = ilp.partition(list(active_edges), w, lambda i, j: 1, 2, EPS)
+        cut_weight, labels = ilp.partition(list(active_edges), w, lambda i, j: 1, 2, CUT_EPS)
         if labels is None:
             print("Aborted. Failed to partition.")
             return default_res
