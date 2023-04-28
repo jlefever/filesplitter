@@ -40,6 +40,7 @@ def split_identifier(name: str) -> list[str]:
     return list(chain(*(split_camal(z) for z in by_underscores)))
 
 
+@cache
 def termize(name: str) -> list[str]:
     stemmer = nltk.stem.PorterStemmer()
     terms = (stemmer.stem(z) for z in split_identifier(name))
@@ -59,6 +60,7 @@ def termize2(name: str) -> list[str]:
     return [t for t in terms if t != ""]
 
 
+@cache
 def normalize_name(doc: str) -> str:
     return "_".join(termize(doc))
 
@@ -160,6 +162,9 @@ class NameSimilarity:
         # Create a square dist
         self.dist_mat = 1 - self.sim_mat
     
+    def has_doc(self, doc: str) -> bool:
+        return normalize_name(doc) in self.docs
+
     def get_doc_ix(self, doc: str) -> int:
         return self.docs.index(normalize_name(doc))
 
