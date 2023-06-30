@@ -1,7 +1,9 @@
 import sqlite3
+import os
 from dataclasses import dataclass
 
 import pandas as pd
+
 
 from filesplitter import db
 
@@ -51,3 +53,22 @@ def load_dataset(db_path: str, filename: str) -> Dataset:
             outgoing_type_names,
             touches_df,
         )
+
+
+def load_subjects_df(data_dir: str, max_subjects_per_db: int) -> pd.DataFrame:
+    subjects_dfs = []
+    for db_name in list(sorted(os.listdir(data_dir))):
+        print(f"Finding subjects in {db_name}...")
+        with sqlite3.connect(os.path.join(data_dir, db_name)) as con:
+            db.create_temp_tables(con)
+            ref_name = db.fetch_lead_ref_name(con)
+            subjects = db.fetch_candidate_files(con, ref_name, 800, 0)
+            subjects.insert(0, "project", db_name.split(".")[0])
+            subjects_dfs.append(subjects[0:max_subjects_per_db])
+    subjects = pd.concat(subjects_dfs, ignore_index=True)
+    subject_names = [
+        "{}__{}".format(p, "_".join(fn.split("/")[-2:]))
+        for p, fn in zip(subjects["project"], subjects["filename"])
+    ]
+    subjects.insert(0, "subject_name", subject_names)
+    return subjects

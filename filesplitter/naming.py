@@ -6,9 +6,11 @@ from collections import Counter
 
 from ordered_set import OrderedSet as oset
 import numpy as np
+from sklearn.decomposition import PCA
 import nltk
 
-STOP_WORDS = {"m", "get", "set", "on", "by", "for", "as", "is", "and", "in", "has"}
+# STOP_WORDS = {"m", "get", "set", "on", "by", "for", "as", "is", "and", "in", "has"}
+STOP_WORDS = {}
 
 def join_singles(terms: list[str]) -> list[str]:
     ret = []
@@ -47,17 +49,20 @@ def termize(name: str) -> list[str]:
     return [t for t in terms if t not in STOP_WORDS]
 
 
-def is_noun(term: str) -> bool:
-    tags = nltk.pos_tag([term])
-    if len(tags) != 1:
-        return False
-    return tags[0][1].startswith("NN")
+def to_bigram(a_term: str, b_term: str) -> str:
+    return f"{a_term}-{b_term}"
 
 
-def termize2(name: str) -> list[str]:
-    stemmer = nltk.stem.PorterStemmer()
-    terms = (stemmer.stem(z) for z in split_identifier(name) if is_noun(z))
-    return [t for t in terms if t != ""]
+def bigramize(terms: list[str]) -> list[str]:
+    return [to_bigram(a, b) for a, b in pairwise(terms)]
+
+
+def skip_bigramize(terms: list[str], lookback: int) -> list[str]:
+    bigrams = []
+    for i, curr in enumerate(terms):
+        for prev in terms[max(i - lookback, 0): i]:
+            bigrams.append(to_bigram(prev, curr))
+    return bigrams
 
 
 @cache
@@ -65,20 +70,30 @@ def normalize_name(doc: str) -> str:
     return "_".join(termize(doc))
 
 
-def to_occurrences(doc: str) -> list[tuple[str, str]]:
+def to_occurrences(doc: str, lookback: int) -> list[tuple[str, str]]:
     normalized = normalize_name(doc)
-    return [(t, normalized) for t in termize(doc)]
+    terms = termize(doc)
+    bigrams = skip_bigramize(terms, lookback)
+    return [(t, normalized) for t in terms + bigrams]
 
 
 class NameSimilarity:
-    def __init__(self, names: list[str], allow_dup_names: bool = True):
+    def __init__(self, names: list[str], allow_dup_names: bool = True, lookback: int = 1):
         # Populate a counter for term-document pairs (aka occurrances)
         collect = list if allow_dup_names else set
-        pair_counts = Counter(collect(chain(*map(to_occurrences, names))))
+        pair_counts = Counter(collect(chain(*(to_occurrences(n, lookback) for n in names))))
 
         # Populate counters for documents (aka names or identifiers) and terms
         term_counts = Counter(t for t, _ in pair_counts.elements())
         doc_counts = Counter(d for _, d in pair_counts.elements())
+
+        # Remove isolated terms from vocabulary
+        isolated_terms = {t for t, c in term_counts.items() if c <= 1}
+        pair_counts = Counter({(t, d): c for (t, d), c in pair_counts.items() if t not in isolated_terms})
+        term_counts = Counter(t for t, _ in pair_counts.elements())
+        doc_counts = Counter(d for _, d in pair_counts.elements())
+
+        # Get total
         total = pair_counts.total()
 
         # Define functions for the probabilities and mutual information
@@ -143,6 +158,10 @@ class NameSimilarity:
             for j, doc in enumerate(self.docs):
                 arr[i, j] = mi(term, doc)
 
+        # Use PCA to reduce dimension (skip-grams will result in many redundant dimensions)
+        # arr = PCA(n_components=0.99, svd_solver="full").fit_transform(arr.T).T
+        # print(arr.shape)
+
         # Define positive correlation
         def center(vec: np.ndarray) -> float:
             return vec - np.mean(vec)
@@ -169,6 +188,8 @@ class NameSimilarity:
         return self.docs.index(normalize_name(doc))
 
     def sim(self, a_doc: str, b_doc: str) -> float:
+        if not self.has_doc(a_doc) or not self.has_doc(b_doc):
+            return 0.0
         return self.sim_mat[self.get_doc_ix(a_doc), self.get_doc_ix(b_doc)]
     
     def most_sim(self, doc: str, n: int) -> list[tuple[str, float]]:
@@ -176,5 +197,5 @@ class NameSimilarity:
         most_sim_indices = reversed(np.argsort(self.sim_mat[doc_ix])[-n:-1])
         return [(self.docs[ix], self.sim_mat[doc_ix, ix]) for ix in most_sim_indices]
     
-    def dist(self, a_doc: str, b_doc: str) -> float:
-        return self.dist_mat[self.get_doc_ix(a_doc), self.get_doc_ix(b_doc)]
+    # def dist(self, a_doc: str, b_doc: str) -> float:
+    #     return self.dist_mat[self.get_doc_ix(a_doc), self.get_doc_ix(b_doc)]

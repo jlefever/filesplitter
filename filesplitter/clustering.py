@@ -11,15 +11,19 @@ from filesplitter.graph import group_by_scc, group_by_wcc, group_edges_by
 from filesplitter.loading import Dataset
 from filesplitter.naming import NameSimilarity
 
+# WE SHOULD NOT SPLIT BY WEAKLY CONNECTED COMPONENT UNTIL WE HAVE TEXT INFORMATION
+
 # This is the first round of clustering
 USE_INIT_TEXT_CLX = False
 TEXT_CLX_EPS = 0.30
 TEXT_CLX_MIN_PTS = 3
 
+TEXT_SIM_LOOKBACK = 1
+
 # This is for use in the ILP portion
 USE_TEXT_EDGES = True
 TEXT_EDGE_MIN_SIM = 0.35 # or use percentile?
-TEXT_EDGE_MULTIPLIER = 8
+TEXT_EDGE_MULTIPLIER = 4
 
 # This applies to any form of text comparison
 ALLOW_DUP_NAMES = True
@@ -103,7 +107,7 @@ def cluster_dataset(ds: Dataset) -> pd.DataFrame:
     edges = oset((r["src_id"], r["tgt_id"]) for _, r in ds.deps_df().iterrows())
 
     # Create a text similarity thing (may not even use it)
-    similarity = NameSimilarity(list(ds.targets_df["name"]), allow_dup_names=ALLOW_DUP_NAMES)
+    similarity = NameSimilarity(list(ds.targets_df["name"]), allow_dup_names=ALLOW_DUP_NAMES, lookback=TEXT_SIM_LOOKBACK)
 
     if USE_INIT_TEXT_CLX:
         # Cluster by name
@@ -183,7 +187,7 @@ def cluster_dataset(ds: Dataset) -> pd.DataFrame:
 
         start = time.perf_counter()
         if USE_TEXT_EDGES:
-            cut_weight, labels = ilp.partition2(active_dep_edges, active_txt_edges, w, get_edge_weight, 2, CUT_EPS)
+            cut_weight, labels = ilp.partition2(active_dep_edges, active_txt_edges, w, get_edge_weight, 2, CUT_EPS, 120)
         else:
             cut_weight, labels = ilp.partition(list(active_dep_edges), w, lambda i, j: 1, 2, CUT_EPS)
         if labels is None:

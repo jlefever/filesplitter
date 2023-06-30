@@ -1,3 +1,4 @@
+import json
 from collections import defaultdict
 
 
@@ -86,3 +87,13 @@ def to_drh(name, entities_df) -> dict:
         add_to_root(root, to_idx_list(row["block_name"]), row["name"])
     drh["structure"] = root
     return drh
+
+
+def write_dsm(filename, name, targets_df, deps_df):
+    with open(filename, "w") as f:
+        json.dump(to_dsm(name, targets_df, deps_df), f)
+
+
+def write_drh(filename, name, entities_df):
+    with open(filename, "w") as f:
+        json.dump(to_drh(name, entities_df), f)
